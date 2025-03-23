@@ -1,6 +1,7 @@
 import express from 'express';
 import productsRouter from './routes/products.js';
 import mongoose from 'mongoose';
+import userRouter from './routes/user.js';
 
 //make database connection
 //const MONGO_URI ='mongodb+srv://ecommerce-api:ryC2LllPaV2cAI5i@cluster0.g9pn8.mongodb.net/ecommerce-db?retryWrites=true&w=majority&appName=Cluster0';
@@ -14,6 +15,7 @@ app.use(express.json());
 
 //use routes
 app.use(productsRouter);
+app.use(userRouter);
 
 //Listen for incoming request
 
