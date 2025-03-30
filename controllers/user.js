@@ -2,6 +2,7 @@ import { userModel } from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { registerUserValidator, loginUserValidator, updateUserValidator } from "../validators/user.js";
+import { mailTransporter } from "../utils/mail.js";
 
 
 export const registerUser = async (req, res, next) => {
@@ -31,6 +32,13 @@ export const registerUser = async (req, res, next) => {
         password: hashedPassword
     })
     //send registration email to user
+    await mailTransporter.sendMail({
+        from: 'affulgifty@gmail.com',
+        to: value.email,
+        subject: 'Checking out NodeMailer',
+        html: registerUserMailTemplate.replace('{{username}},value.username'),
+
+    });
     //(optionally) generate access token for user
     //return response
     res.status(201).json('User registered successfully')
@@ -65,8 +73,16 @@ export const loginUser = async (req, res, next) => {
         { expiresIn: '24h' }
     )
     //return response
-    res.status(200).json({ accessToken })
+    res.status(200).json({ 
+        accessToken,
+        user:{
+            role: user.role,
+            email: user.email
+        } 
+    
+    });
 }
+
 
 export const updateUser = async (req, res, next) => {
     //validate request body
@@ -83,3 +99,17 @@ export const updateUser = async (req, res, next) => {
     //return response
     res.status(200).json(value);
 };
+
+export const getAuthenticatedUser = async (req, res, next) => {
+    //Get user by id using req.auth.id
+    try {
+        const result = await userModel.
+        findById(req.auth.id)
+        .select({password:false})
+        //Return response
+        res.status(200).json(result);
+    } catch (error) {
+        next(error)
+        
+    }
+}
